@@ -1,12 +1,17 @@
 /*
-* DFA: creates a static DFA of size n. Note that all states in dfa must be in
-* a numerical order from 0 to (n - 1).
+* A dynamic DFA which can contain multiplale states and multiple paths from
+* each state. There is no limit to the number of paths a state may contain and
+* different states can contain different amount of paths.
+*
+* The alpahbetic keys (a,b,c or 1,2,3 etc.) that lead one state to another (Q1
+* -> Q2 for example) can only be one characther long and must. The alphabet
+* must be consisting of numbers or letters.
 *
 * Authors:
 * Buster Hultgren Warn <dv17bhn@cs.umu.se>
 * Victor Liljeholm <dv13vlm@cs.umu.se>
 *
-* Final build: 2018-03-13
+* Final build: 2018-08-21
 */
 
 
@@ -28,9 +33,8 @@ dfa *dfaEmpty(){
 }
 
 /*
-* description: Checks if the dfa is empty.
-* param[in]: dfa - A pointer to the dfa.
-* return: bool depending on if the dfa is empty or not.
+* description: Allocates memory for a dfa and Creates an empty dfa.
+* return: Empty dfa.
 */
 bool dfaIsEmpty (dfa *dfa) {
 
@@ -38,9 +42,9 @@ bool dfaIsEmpty (dfa *dfa) {
 }
 
 /*
-* description: Allocates memory for all possible states.
+* description: Allocates memory for all the states to be set into the dfa.
 * param[in]: dfa - A pointer to the dfa.
-* param[in]: capacity - the number of possible states.
+* param[in]: capacity - The number of states the dfa shall contain.
 */
 void dfaSetStates (dfa *dfa, int capacity) {
 
@@ -61,28 +65,35 @@ void dfaSetStart (dfa *dfa, char *stateName) {
 }
 
 /*
-* description: Inserts a state to the dfa and sets stateNr and if the state is
-* acceptable or not. Also Allocates space for the two paths pointers.
+* description: If number of inserted states is smaller than the DFA's capacity,
+* allocate memory for and insert a state.
 * param[in]: dfa - A pointer to the dfa.
-* param[in]: acceptable - tells if the state is to be acceptlable state or not.
-* param[in]: stateNr - The stateNr for the state thats going into the dfa.
+* param[in]: acceptable - tells if the state is to be acceptlable or not.
+* param[in]: stateName - The name of the state.
 */
 void dfaInsertState (dfa *dfa, bool acceptable, char *stateName) {
 
-    dfa -> allStates[dfa -> size] = malloc(sizeof(struct state));
-	dfa -> allStates[dfa -> size] -> stateName = stateName;
-    dfa -> allStates[dfa -> size] -> stateNr = dfa -> size;
-    dfa -> allStates[dfa -> size] -> acceptable = acceptable;
-	dfa -> allStates[dfa -> size] -> paths = NULL;
-	dfa -> size++;
+	if (dfa -> size < dfa -> capacity) {
+
+		dfa -> allStates[dfa -> size] = malloc(sizeof(struct state));
+		dfa -> allStates[dfa -> size] -> stateName = stateName;
+		dfa -> allStates[dfa -> size] -> stateNr = dfa -> size;
+		dfa -> allStates[dfa -> size] -> acceptable = acceptable;
+		dfa -> allStates[dfa -> size] -> paths = NULL;
+		dfa -> size++;
+	} else {
+
+		fprintf(stderr, "Cannot insert state '%s', DFA is already full\n",
+				stateName);
+	}
 }
 
 /*
-* description: Modifys the path pointers of a state.
-* param[in]: dfa - A pointer to the dfa.
-* param[in]: state - the state which path are to be modified.
-* param[in]: path - the path which are to be modified.
-* param[in] toState - the state to which the path going to point to.
+* description: Modifies a state by adding a path.
+* param[in]: dfa - Pointer to dfa which includes the state.
+* param[in]: fromState - Pointer to the state which path are to be modified.
+* param[in]: path - The alpabetical key of the path.
+* param[in]: toState - The state to which the path leads to.
 */
 void dfaModifyState (dfa *dfa, char *fromState, char *path, char *toState) {
 
@@ -96,11 +107,11 @@ void dfaModifyState (dfa *dfa, char *fromState, char *path, char *toState) {
 }
 
 /*
-* description: Changes the current state of the dfa depending of which path is
-* input.
-* param[in]: dfa - A pointer to the dfa.
-* param[in]: path - A number representing the path that current state is going
-* to use to move to the next state.
+* description: Changes the current state of the dfa by one of the paths
+* connected to the current state.
+* param[in]: dfa - Pointer to the dfa.
+* param[in]: path - The alphabetical key to one of the paths connected to the
+* current state.
 */
 int dfaChangeState (dfa *dfa, char *key) {
 
@@ -121,21 +132,12 @@ int dfaChangeState (dfa *dfa, char *key) {
 	return letterValidity;
 }
 
-void dfaReset (dfa *dfa) {
-
-	dfa -> currState = dfa -> startState;
-}
-
 /*
-* description: Gets the current state of the dfa.
-* param[in]: dfa - A pointer to the dfa.
-* return: A number representing the current state of the dfa.
+* description: Finds a particular state in the DFA.
+* param[in]: dfa - The dfa.
+* param[in]: stateName - The name of the state to be found.
+* return: If found; the state, else NULL.
 */
-int dfaGetCurrentState (dfa *dfa) {
-
-    return dfa -> currState -> stateNr;
-}
-
 state *dfaFindState(dfa *dfa, char *stateName) {
 
 	state* foundState = NULL;
@@ -153,7 +155,16 @@ state *dfaFindState(dfa *dfa, char *stateName) {
 }
 
 /*
-* description: free's all memeory allocates bt the dfa.
+* description: Resets the DFA's current state to its starting state.
+* param[in]: dfa - The dfa to be reset.
+*/
+void dfaReset (dfa *dfa) {
+
+	dfa -> currState = dfa -> startState;
+}
+
+/*
+* description: Frees all memeory allocated by and in the dfa.
 * param[in]: dfa - A pointer to the dfa.
 */
 void dfaKill (dfa *dfa) {
@@ -166,15 +177,14 @@ void dfaKill (dfa *dfa) {
 			dfa -> allStates[i] = NULL;
         }
     }
-	/*if (dfa -> startState != NULL) {
-
-		printf("size: %d", dfa -> size);
-		stateKill(dfa -> startState);
-	}*/
     free(dfa -> allStates);
     free(dfa);
 }
 
+/*
+* description: Frees all memory allocated by and in the state.
+* param[in]: state - A pointer to the state.
+*/
 void stateKill (state *state) {
 
 	if (state -> stateName != NULL) {
@@ -186,6 +196,13 @@ void stateKill (state *state) {
 	free(state);
 }
 
+/*
+* description: Allocates memory for a new path. Insterts an initial key for the
+* path.
+* param[in]: key - Pointer to the alpabetical key / name of the path.
+* param[in]: destination - A pointer to the destination the key points to.
+* return: The path.
+*/
 path *pathEmpty(char *key, state* destination) {
 
 	path *path = malloc(sizeof(*path));
@@ -195,6 +212,12 @@ path *pathEmpty(char *key, state* destination) {
 	return path;
 }
 
+/*
+* description: Inserts a new path to a path.
+* param[in]: fromState - State that path goes from.
+* param[in]: key - Alphabetical key / name of the path.
+* param[in]: destination - The state that path will lead too.
+*/
 void pathInsert(state *fromState, char* key, state* destination) {
 
 	if (fromState -> paths == NULL ) {
@@ -208,6 +231,12 @@ void pathInsert(state *fromState, char* key, state* destination) {
 	}
 }
 
+/*
+* description: Finds a state in a path.
+* param[in]: path - Pointer to the path.
+* param[in]: key - Alphabetical key which leads to the state.
+* return: If found; the state, else NULL.
+*/
 state *pathFindState(path* path, char* key) {
 
 	state *foundState = NULL;
@@ -226,6 +255,10 @@ state *pathFindState(path* path, char* key) {
 	return foundState;
 }
 
+/*
+* description:Frees all memeory allocated by and in the path.
+* param[in]: path - Pointer to the path.
+*/
 void pathKill (path *path) {
 
 	while (path != NULL) {

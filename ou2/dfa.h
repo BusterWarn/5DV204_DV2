@@ -1,12 +1,17 @@
 /*
-* DFA: creates a static DFA of size n. Note that all states in dfa must be in
-* a numerical order from 0 to (n - 1).
+* A dynamic DFA which can contain multiplale states and multiple paths from
+* each state. There is no limit to the number of paths a state may contain and
+* different states can contain different amount of paths.
+*
+* The alpahbetic keys (a,b,c or 1,2,3 etc.) that lead one state to another (Q1
+* -> Q2 for example) can only be one characther long and must. The alphabet
+* must be consisting of numbers or letters.
 *
 * Authors:
 * Buster Hultgren Warn <dv17bhn@cs.umu.se>
 * Victor Liljeholm <dv13vlm@cs.umu.se>
 *
-* Final build: 2018-03-13
+* Final build: 2018-08-21
 */
 
 
@@ -47,7 +52,7 @@ typedef struct dfa {
 } dfa;
 
 /*
-* description: Allocates memory for an dfa and Creates an empty dfa.
+* description: Allocates memory for a dfa and Creates an empty dfa.
 * return: Empty dfa.
 */
 dfa *dfaEmpty ();
@@ -55,14 +60,14 @@ dfa *dfaEmpty ();
 /*
 * description: Checks if the dfa is empty.
 * param[in]: dfa - A pointer to the dfa.
-* return: bool depending on if the dfa is empty or not.
+* return: true if the dfa is empty, else false.
 */
 bool dfaIsEmpty(dfa *dfa);
 
 /*
-* description: Allocates memory for all possible states.
+* description: Allocates memory for all the states to be set into the dfa.
 * param[in]: dfa - A pointer to the dfa.
-* param[in]: capacity - the number of possible states.
+* param[in]: capacity - The number of states the dfa shall contain.
 */
 void dfaSetStates (dfa *dfa, int capacity);
 
@@ -74,63 +79,54 @@ void dfaSetStates (dfa *dfa, int capacity);
 void dfaSetStart (dfa *dfa, char *stateName);
 
 /*
-* description: Inserts a state to the dfa and sets stateNr and if the state is
-* acceptable or not. Also Allocates space for the two paths pointers.
+* description: If number of inserted states is smaller than the DFA's capacity,
+* allocate memory for and insert a state.
 * param[in]: dfa - A pointer to the dfa.
-* param[in]: acceptable - tells if the state is to be acceptlable state or not.
-* param[in]: stateNr - The stateNr for the state thats going into the dfa.
+* param[in]: acceptable - tells if the state is to be acceptlable or not.
+* param[in]: stateName - The name of the state.
 */
 void dfaInsertState (dfa *dfa, bool acceptable, char *stateName);
 
 /*
-* description: Modifys the path pointers of a state.
-* param[in]: dfa - A pointer to the dfa.
-* param[in]: state - the state which path are to be modified.
-* param[in]: path - the path which are to be modified.
-* param[in]: toState - the state to which the path going to point to.
+* description: Modifies a state by adding a path.
+* param[in]: dfa - Pointer to dfa which includes the state.
+* param[in]: fromState - Pointer to the state which path are to be modified.
+* param[in]: path - The alpabetical key of the path.
+* param[in]: toState - The state to which the path leads to.
 */
-void dfaModifyState (dfa *dfa, char *state, char *path, char *toState);
+void dfaModifyState (dfa *dfa, char *fromState, char *path, char *toState);
 
 /*
-* description: Changes the current state of the dfa depending of which path is
-* input.
-* param[in]: dfa - A pointer to the dfa.
-* param[in]: path - A number representing the path that current state is going
-* to use to move to the next state.
+* description: Changes the current state of the dfa by one of the paths
+* connected to the current state.
+* param[in]: dfa - Pointer to the dfa.
+* param[in]: path - The alphabetical key to one of the paths connected to the
+* current state.
 */
 int dfaChangeState (dfa *dfa, char *key);
 
-
-/*
-* description: Resets the DFA to its starting positon.
-* param[in]: dfa - The dfa to be reset.
-*/
-void dfaReset (dfa *dfa);
-
-/*
-* description: Gets the current state of the dfa.
-* param[in]: dfa - A pointer to the dfa.
-* return: A number representing the current state of the dfa.
-*/
-int dfaGetCurrentState (dfa *dfa);
-
 /*
 * description: Finds a particular state in the DFA.
-* param[in]: dfa - The dfa
+* param[in]: dfa - The dfa.
 * param[in]: stateName - The name of the state to be found.
 * return: If found; the state, else NULL.
 */
 state *dfaFindState(dfa *dfa, char *stateName);
 
+/*
+* description: Resets the DFA's current state to its starting state.
+* param[in]: dfa - The dfa to be reset.
+*/
+void dfaReset (dfa *dfa);
 
 /*
-* description: frees all memeory allocates bt the dfa.
+* description: Frees all memeory allocated by and in the dfa.
 * param[in]: dfa - A pointer to the dfa.
 */
 void dfaKill (dfa *dfa);
 
 /*
-* description: frees all memory allocated by the state.
+* description: Frees all memory allocated by and in the state.
 * param[in]: state - A pointer to the state.
 */
 void stateKill (state *state);
@@ -138,7 +134,7 @@ void stateKill (state *state);
 /*
 * description: Allocates memory for a new path. Insterts an initial key for the
 * path.
-* param[in]: key - Pointer to the key / name of the path.
+* param[in]: key - Pointer to the alpabetical key / name of the path.
 * param[in]: destination - A pointer to the destination the key points to.
 * return: The path.
 */
@@ -147,29 +143,24 @@ path *pathEmpty(char *key, state *destination);
 /*
 * description: Inserts a new path to a path.
 * param[in]: fromState - State that path goes from.
-* param[in]: key - Key / name of the path.
+* param[in]: key - Alphabetical key / name of the path.
 * param[in]: destination - The state that path will lead too.
 */
 void pathInsert(state *fromState, char *key, state *destination);
 
 /*
-* description: Finds a state in a pathlist.
-* param[in]:
-* return:
+* description: Finds a state in a path.
+* param[in]: path - Pointer to the path.
+* param[in]: key - Alphabetical key which leads to the state.
+* return: If found; the state, else NULL.
 */
-state *pathlistFindState(path *path, char *key);
+state *pathFindState(path *path, char *key);
 
 /*
-* description:
-* param[in]:
-* return:
+* description:Frees all memeory allocated by and in the path.
+* param[in]: path - Pointer to the path.
 */
 void pathKill (path *path);
 
-/*
-* description:
-* param[in]:
-* return:
-*/
 
 #endif //DFAMGENERATOR
