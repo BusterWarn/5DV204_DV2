@@ -277,3 +277,39 @@ void pathKill (path *path) {
 		free(tempPath);
 	}
 }
+
+void dfaPrint (dfa *dfa) {
+
+	printf("\n\n ----- Printing DFA -----\n\n");
+	for (int i = 0; i < dfa -> size; i++) {
+
+		printf("\nstate: '%s'\n", dfa -> allStates [i] -> stateName);
+
+		struct path *tempPath = NULL;
+		if (dfa -> allStates[i] != NULL) {
+
+			tempPath = dfa -> allStates[i] -> paths;
+		}
+
+		while (tempPath != NULL) {
+
+			printf(" - ");
+			if (tempPath -> key != NULL) {
+
+				printf("%c -> ", tempPath -> key);
+				if (tempPath -> destination != NULL) {
+
+					printf("'%s'\n", tempPath -> destination -> stateName);
+				} else {
+
+					printf("NULL\n");
+				}
+			} else {
+
+				printf("NULL\n");
+			}
+
+			tempPath = tempPath -> nextPath;
+		}
+	}
+}

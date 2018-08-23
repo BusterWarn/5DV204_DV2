@@ -162,5 +162,6 @@ state *pathFindState(path *path, char *key);
 */
 void pathKill (path *path);
 
+void dfaPrint (dfa *dfa);
 
 #endif //DFAMGENERATOR

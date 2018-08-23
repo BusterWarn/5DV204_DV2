@@ -43,6 +43,7 @@ int main(int argc, const char *argv[]){
 
     dfa* dfa = buildDfa(argv);
 
+	dfaPrint(dfa);
     runDfa(dfa);
     dfaKill(dfa);
     return 1;
@@ -187,6 +188,11 @@ char *readLine (FILE *fp) {
     char currChar = fgetc(fp);
 
     while (currChar != '\n' && currChar >= 0) {
+		printf("%d ", currChar);
+		if (currChar == '\r') {
+
+			printf("\n0CARRIAGE RETURN!!!\n");
+		}
 
         if (length >= buffer - 2) {
 
@@ -198,17 +204,21 @@ char *readLine (FILE *fp) {
         length++;
         currChar = fgetc(fp);
     }
+	printf("%d - ", currChar);
 
 	if (length > 0) {
 
-		line[length - 1] = '\0';
-		line = realloc(line, sizeof(char) * length);
+		line[length] = '\0';
+		line = realloc(line, sizeof(char) * length + 1);
+		/*line[length - 1] = '\0';
+		line = realloc(line, sizeof(char) * length);*/
 	} else {
 
 		free(line);
 		line = NULL;
 	}
 
+	printf("LINE: '%s'\n", line);
     return line;
 }
 
@@ -398,9 +408,17 @@ int isAcceptedLetter (char letter) {
 			return 1;
 		} else  if (letter == '\n' || letter == '\r') {
 
+			if (letter == '\r') {
+
+				printf("\n0CARRIAGE RETURN!!!\n");
+			}
 			return 0;
 		} else {
 
+			if (letter == '\r') {
+
+				printf("\n0CARRIAGE RETURN!!!\n");
+			}
 			return -1;
 		}
 }
