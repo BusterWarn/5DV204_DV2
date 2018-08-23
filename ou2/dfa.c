@@ -11,7 +11,7 @@
 * Buster Hultgren Warn <dv17bhn@cs.umu.se>
 * Victor Liljeholm <dv13vlm@cs.umu.se>
 *
-* Final build: 2018-08-21
+* Final build: 2018-08-23
 */
 
 
@@ -164,6 +164,46 @@ void dfaReset (dfa *dfa) {
 }
 
 /*
+* description: Help function to print DFA states and paths during development.
+* param[in]: dfa - The dfa to be printed.
+*/
+void dfaPrint (dfa *dfa) {
+
+	printf("\n\n ----- Printing DFA -----\n\n");
+	for (int i = 0; i < dfa -> size; i++) {
+
+		printf("\nstate: '%s'\n", dfa -> allStates [i] -> stateName);
+
+		struct path *tempPath = NULL;
+		if (dfa -> allStates[i] != NULL) {
+
+			tempPath = dfa -> allStates[i] -> paths;
+		}
+
+		while (tempPath != NULL) {
+
+			printf(" - ");
+			if (tempPath -> key != NULL) {
+
+				printf("%c -> ", *(tempPath -> key));
+				if (tempPath -> destination != NULL) {
+
+					printf("'%s'\n", tempPath -> destination -> stateName);
+				} else {
+
+					printf("NULL\n");
+				}
+			} else {
+
+				printf("NULL\n");
+			}
+
+			tempPath = tempPath -> nextPath;
+		}
+	}
+}
+
+/*
 * description: Frees all memeory allocated by and in the dfa.
 * param[in]: dfa - A pointer to the dfa.
 */
@@ -189,7 +229,6 @@ void stateKill (state *state) {
 
 	if (state -> stateName != NULL) {
 
-		fprintf(stderr, "Goodbye: '%s'\n", state -> stateName);
 		free(state -> stateName);
 	}
 	pathKill(state -> paths);
@@ -266,50 +305,10 @@ void pathKill (path *path) {
 		struct path *tempPath = path;
 		path = path -> nextPath;
 
-		fprintf(stderr, "YOU'RE FREE: ");
 		if (tempPath -> key != NULL) {
 
-
-			fprintf(stderr, "'%s'", tempPath -> key);
 			free(tempPath -> key);
 		}
-		fprintf(stderr, "\n");
 		free(tempPath);
-	}
-}
-
-void dfaPrint (dfa *dfa) {
-
-	printf("\n\n ----- Printing DFA -----\n\n");
-	for (int i = 0; i < dfa -> size; i++) {
-
-		printf("\nstate: '%s'\n", dfa -> allStates [i] -> stateName);
-
-		struct path *tempPath = NULL;
-		if (dfa -> allStates[i] != NULL) {
-
-			tempPath = dfa -> allStates[i] -> paths;
-		}
-
-		while (tempPath != NULL) {
-
-			printf(" - ");
-			if (tempPath -> key != NULL) {
-
-				printf("%c -> ", tempPath -> key);
-				if (tempPath -> destination != NULL) {
-
-					printf("'%s'\n", tempPath -> destination -> stateName);
-				} else {
-
-					printf("NULL\n");
-				}
-			} else {
-
-				printf("NULL\n");
-			}
-
-			tempPath = tempPath -> nextPath;
-		}
 	}
 }

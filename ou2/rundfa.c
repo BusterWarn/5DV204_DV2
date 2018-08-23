@@ -17,6 +17,10 @@
 * in between). Each row will represent a state (the former) and a key to a path
 * in it which will lead to another state (the latter).
 *
+* To test if strings are valid in the built DFA, simply enter the string in the
+* terminal. Only alphabetical and numerical keys are valid. Anything else, like
+* a '?', will quit the program.
+*
 * param[in]: argv[0] - ./[exacutable program name]
 * param[in]: argv[1] - filename of the file with the specification for the dfa.
 *
@@ -24,7 +28,7 @@
 * Buster Hultgren Warn <dv17bhn@cs.umu.se>
 * Victor Liljeholm <dv13vlm@cs.umu.se>
 *
-* Final build: 2018-08-21
+* Final build: 2018-08-23
 */
 
 #include "rundfa.h"
@@ -43,7 +47,6 @@ int main(int argc, const char *argv[]){
 
     dfa* dfa = buildDfa(argv);
 
-	dfaPrint(dfa);
     runDfa(dfa);
     dfaKill(dfa);
     return 1;
@@ -68,8 +71,6 @@ dfa *buildDfa (const char *argv[]) {
 
     int allStates = countStates(acceptable);
     allStates += countStates(other);
-
-	printf("\n\n");
 
     dfaSetStates(dfa, allStates);
 
@@ -188,37 +189,35 @@ char *readLine (FILE *fp) {
     char currChar = fgetc(fp);
 
     while (currChar != '\n' && currChar >= 0) {
-		printf("%d ", currChar);
+
+		//If a carriage return is read, skip it.
 		if (currChar == '\r') {
 
-			printf("\n0CARRIAGE RETURN!!!\n");
+			currChar = fgetc(fp);
+		} else {
+
+			if (length >= buffer - 2) {
+
+	            buffer = buffer * 2;
+	            line = realloc(line, sizeof(char) * buffer);
+	        }
+	        line[length] = currChar;
+
+	        length++;
+	        currChar = fgetc(fp);
 		}
-
-        if (length >= buffer - 2) {
-
-            buffer = buffer * 2;
-            line = realloc(line, sizeof(char) * buffer);
-        }
-        line[length] = currChar;
-
-        length++;
-        currChar = fgetc(fp);
     }
-	printf("%d - ", currChar);
 
 	if (length > 0) {
 
 		line[length] = '\0';
 		line = realloc(line, sizeof(char) * length + 1);
-		/*line[length - 1] = '\0';
-		line = realloc(line, sizeof(char) * length);*/
 	} else {
 
 		free(line);
 		line = NULL;
 	}
 
-	printf("LINE: '%s'\n", line);
     return line;
 }
 
@@ -357,9 +356,9 @@ int fileValidation (int argc, const char *argv[]) {
 */
 void runDfa (dfa *dfa) {
 
-    char choice = '0';
-    while (isAcceptedLetter(choice) >= 0)
-    {
+	char choice = '0';
+    while (isAcceptedLetter(choice) >= 0) {
+
 		printf("-----\n\n");
 		printf("Write a sting of letters accepted by the current alphabet. A"
 				" '?' will quit the program\n");
@@ -381,15 +380,17 @@ void runDfa (dfa *dfa) {
 
 			printf("The string is %s\n\n", dfa -> currState -> acceptable == 1 ?
 			"accepted by the dfa" : "not accepted by the dfa");
-			dfaReset(dfa);
 		} else if (letterValidity == 0) {
 
 			printf("'%c' is not a letter in the current alphabet\n\n", choice);
+			clearInputStream();
 		} else {
 
 			printf("DFA was not setup correctly and path does not exist for"
 			"current path in DFA\n\n");
+			clearInputStream();
 		}
+		dfaReset(dfa);
     }
 }
 
@@ -408,17 +409,23 @@ int isAcceptedLetter (char letter) {
 			return 1;
 		} else  if (letter == '\n' || letter == '\r') {
 
-			if (letter == '\r') {
-
-				printf("\n0CARRIAGE RETURN!!!\n");
-			}
 			return 0;
 		} else {
 
-			if (letter == '\r') {
-
-				printf("\n0CARRIAGE RETURN!!!\n");
-			}
 			return -1;
 		}
+}
+
+/*
+* description: Clears the current input stream. Note: if input stream is
+* already clear, function will wait for input. If this happens, simply input
+* something in terminal.
+*/
+void clearInputStream () {
+
+	char buffer = '0';
+	while (buffer != '\n') {
+
+		buffer = getchar();
+	}
 }

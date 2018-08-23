@@ -11,7 +11,7 @@
 * Buster Hultgren Warn <dv17bhn@cs.umu.se>
 * Victor Liljeholm <dv13vlm@cs.umu.se>
 *
-* Final build: 2018-08-21
+* Final build: 2018-08-23
 */
 
 
@@ -120,6 +120,12 @@ state *dfaFindState(dfa *dfa, char *stateName);
 void dfaReset (dfa *dfa);
 
 /*
+* description: Help function to print DFA states and paths during development.
+* param[in]: dfa - The dfa to be printed.
+*/
+void dfaPrint (dfa *dfa);
+
+/*
 * description: Frees all memeory allocated by and in the dfa.
 * param[in]: dfa - A pointer to the dfa.
 */
@@ -161,7 +167,5 @@ state *pathFindState(path *path, char *key);
 * param[in]: path - Pointer to the path.
 */
 void pathKill (path *path);
-
-void dfaPrint (dfa *dfa);
 
 #endif //DFAMGENERATOR
