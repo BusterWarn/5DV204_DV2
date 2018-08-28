@@ -134,12 +134,11 @@ char* getNextWord (char *line, int *i) {
 
     int wordFound = 0;
     int startOfWord = 0;
-	char *word = NULL;
+    char *word = NULL;
 
-	if (line[*i] == '\0') {
-
-		wordFound = -1;
-	}
+    if (line[*i] == '\0') {
+      wordFound = -1;
+    }
 
     while (wordFound >= 0) {
 
@@ -190,22 +189,22 @@ char *readLine (FILE *fp) {
 
     while (currChar != '\n' && currChar >= 0) {
 
-		//If a carriage return is read, skip it.
-		if (currChar == '\r') {
+  		//If a carriage return is read, skip it.
+  		if (currChar == '\r') {
 
-			currChar = fgetc(fp);
-		} else {
+  			currChar = fgetc(fp);
+  		} else {
 
-			if (length >= buffer - 2) {
+  			if (length >= buffer - 2) {
 
-	            buffer = buffer * 2;
-	            line = realloc(line, sizeof(char) * buffer);
-	        }
-	        line[length] = currChar;
+  	            buffer = buffer * 2;
+  	            line = realloc(line, sizeof(char) * buffer);
+  	        }
+  	        line[length] = currChar;
 
-	        length++;
-	        currChar = fgetc(fp);
-		}
+  	        length++;
+  	        currChar = fgetc(fp);
+  		}
     }
 
 	if (length > 0) {
@@ -378,7 +377,7 @@ void runDfa (dfa *dfa) {
 
 		if (letterValidity == 1) {
 
-			printf("The string is %s\n\n", dfa -> currState -> acceptable == 1 ?
+			printf("The string is %s\n\n", dfaIsAcceptable(dfa) == 1 ?
 			"accepted by the dfa" : "not accepted by the dfa");
 		} else if (letterValidity == 0) {
 
@@ -407,13 +406,13 @@ int isAcceptedLetter (char letter) {
 		(letter >= 'A' && letter <= 'Z')) {
 
 			return 1;
-		} else  if (letter == '\n' || letter == '\r') {
+	} else  if (letter == '\n' || letter == '\r') {
 
-			return 0;
-		} else {
+		return 0;
+	} else {
 
-			return -1;
-		}
+		return -1;
+	}
 }
 
 /*

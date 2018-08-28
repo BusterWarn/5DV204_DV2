@@ -114,6 +114,13 @@ int dfaChangeState (dfa *dfa, char *key);
 state *dfaFindState(dfa *dfa, char *stateName);
 
 /*
+* description: Validates if current state in the DFA is acceptable or not.
+* param[in]: dfa - The dfa.
+* return: If acceptable; 1, else 0.
+*/
+bool dfaIsAcceptable (dfa *dfa);
+
+/*
 * description: Resets the DFA's current state to its starting state.
 * param[in]: dfa - The dfa to be reset.
 */

@@ -23,22 +23,23 @@
 */
 dfa *dfaEmpty(){
 
-    dfa *dfa = malloc(sizeof(struct dfa));
-    dfa -> allStates = NULL;
-    dfa -> startState = NULL;
-    dfa -> currState = NULL;
+	dfa *dfa = malloc(sizeof(struct dfa));
+	dfa -> allStates = NULL;
+	dfa -> startState = NULL;
+	dfa -> currState = NULL;
 	dfa -> capacity = 0;
 	dfa -> size = 0;
-    return dfa;
+	return dfa;
 }
 
 /*
-* description: Allocates memory for a dfa and Creates an empty dfa.
-* return: Empty dfa.
+* description: Checks if the dfa is empty.
+* param[in]: dfa - A pointer to the dfa.
+* return: true if the dfa is empty, else false.
 */
 bool dfaIsEmpty (dfa *dfa) {
 
-    return dfa -> allStates == NULL;
+	return dfa -> allStates == NULL;
 }
 
 /*
@@ -48,8 +49,8 @@ bool dfaIsEmpty (dfa *dfa) {
 */
 void dfaSetStates (dfa *dfa, int capacity) {
 
-    dfa -> capacity = capacity;
-    dfa -> allStates = realloc(dfa -> allStates, sizeof(state*) * capacity);
+	dfa -> capacity = capacity;
+	dfa -> allStates = realloc(dfa -> allStates, sizeof(state*) * capacity);
 }
 
 /*
@@ -60,8 +61,8 @@ void dfaSetStates (dfa *dfa, int capacity) {
 void dfaSetStart (dfa *dfa, char *stateName) {
 
 	state* startState = dfaFindState(dfa, stateName);
-    dfa -> startState = startState;
-    dfa -> currState = startState;
+	dfa -> startState = startState;
+	dfa -> currState = startState;
 }
 
 /*
@@ -155,6 +156,22 @@ state *dfaFindState(dfa *dfa, char *stateName) {
 }
 
 /*
+* description: Validates if current state in the DFA is acceptable or not.
+* param[in]: dfa - The dfa.
+* return: If acceptable; true, else false.
+*/
+bool dfaIsAcceptable (dfa *dfa) {
+
+	if (dfa -> currState != NULL) {
+
+		return dfa -> currState -> acceptable;
+	} else {
+
+		return 0;
+	}
+}
+
+/*
 * description: Resets the DFA's current state to its starting state.
 * param[in]: dfa - The dfa to be reset.
 */
@@ -185,19 +202,18 @@ void dfaPrint (dfa *dfa) {
 			printf(" - ");
 			if (tempPath -> key != NULL) {
 
-				printf("%c -> ", *(tempPath -> key));
-				if (tempPath -> destination != NULL) {
+        	printf("%c -> ", *(tempPath -> key));
+	  			if (tempPath -> destination != NULL) {
 
-					printf("'%s'\n", tempPath -> destination -> stateName);
-				} else {
+	  				printf("'%s'\n", tempPath -> destination -> stateName);
+	  			} else {
 
-					printf("NULL\n");
-				}
+	  				printf("NULL\n");
+	  		  	}
 			} else {
 
 				printf("NULL\n");
 			}
-
 			tempPath = tempPath -> nextPath;
 		}
 	}
@@ -211,11 +227,10 @@ void dfaKill (dfa *dfa) {
 
     for (int i = 0; i < dfa -> capacity; i++) {
 
-        if (dfa -> allStates[i] != NULL) {
-
+		if (dfa -> allStates[i] != NULL) {
 			stateKill(dfa -> allStates[i]);
 			dfa -> allStates[i] = NULL;
-        }
+		}
     }
     free(dfa -> allStates);
     free(dfa);
@@ -243,7 +258,6 @@ void stateKill (state *state) {
 * return: The path.
 */
 path *pathEmpty(char *key, state* destination) {
-
 	path *path = malloc(sizeof(*path));
 	path -> key = key;
 	path -> destination = destination;
