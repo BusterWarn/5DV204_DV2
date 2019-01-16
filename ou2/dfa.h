@@ -11,7 +11,7 @@
 * Buster Hultgren Warn <dv17bhn@cs.umu.se>
 * Victor Liljeholm <dv13vlm@cs.umu.se>
 *
-* Final build: 2018-08-21
+* Final build: 2018-08-23
 */
 
 
@@ -114,10 +114,23 @@ int dfaChangeState (dfa *dfa, char *key);
 state *dfaFindState(dfa *dfa, char *stateName);
 
 /*
+* description: Validates if current state in the DFA is acceptable or not.
+* param[in]: dfa - The dfa.
+* return: If acceptable; 1, else 0.
+*/
+bool dfaIsAcceptable (dfa *dfa);
+
+/*
 * description: Resets the DFA's current state to its starting state.
 * param[in]: dfa - The dfa to be reset.
 */
 void dfaReset (dfa *dfa);
+
+/*
+* description: Help function to print DFA states and paths during development.
+* param[in]: dfa - The dfa to be printed.
+*/
+void dfaPrint (dfa *dfa);
 
 /*
 * description: Frees all memeory allocated by and in the dfa.
@@ -161,6 +174,5 @@ state *pathFindState(path *path, char *key);
 * param[in]: path - Pointer to the path.
 */
 void pathKill (path *path);
-
 
 #endif //DFAMGENERATOR

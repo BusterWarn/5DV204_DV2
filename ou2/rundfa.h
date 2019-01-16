@@ -17,6 +17,10 @@
 * in between). Each row will represent a state (the former) and a key to a path
 * in it which will lead to another state (the latter).
 *
+* To test if strings are valid in the built DFA, simply enter the string in the
+* terminal. Only alphabetical and numerical keys are valid. Anything else, like
+* a '?', will quit the program.
+*
 * param[in]: argv[0] - ./[exacutable program name]
 * param[in]: argv[1] - filename of the file with the specification for the dfa.
 *
@@ -24,7 +28,7 @@
 * Buster Hultgren Warn <dv17bhn@cs.umu.se>
 * Victor Liljeholm <dv13vlm@cs.umu.se>
 *
-* Final build: 2018-08-21
+* Final build: 2018-08-23
 */
 
 #include <stdio.h>
@@ -121,3 +125,10 @@ void runDfa (dfa *dfa);
 * return: 1 if key, 0 if linebreak, -1 if command to quit program.
 */
 int isAcceptedLetter (char letter);
+
+/*
+* description: Clears the current input stream. Note: if input stream is
+* already clear, function will wait for input. If this happens, simply input
+* something in terminal.
+*/
+void clearInputStream ();
